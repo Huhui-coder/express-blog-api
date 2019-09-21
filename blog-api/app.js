@@ -6,13 +6,18 @@ var jwt = require("jwt-simple"); //引入jwt中间件
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var mongoose = require('mongoose');
+const fs = require("fs");
+const multer = require("multer");
+var app = express();
 
+var upload = multer({ dest: 'uploads/' })//当前目录下建立文件夹uploads
+app.post('/uploads', upload.single('files'), function (req, res, next) { res.send("12") });
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var articleRouter = require("./routes/article");
+const multerUpload = require('./routes/upload');
 
-var app = express();
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -50,25 +55,26 @@ app.all('*', function (req, res, next) {
 });
   
 
-app.all("/article", (req, res) => {
-  // 获取token,这里默认是放在headers的authorization
-  let token = req.headers.authorization;
-  if (token) {
-    let decoded = jwt.decode(token, app.get("jwtTokenSecret"));
-    // 判断是否token已过期以及接收方是否为自己
-    if (decoded.exp <= Date.now() || decoded.aud !== "hit") {
-      res.sendStatus(401);
-    } else {
-      res.sendStatus(200);
-    }
-  } else {
-    res.sendStatus(401);
-  }
-});
+// app.all("/article", (req, res) => {
+//   // 获取token,这里默认是放在headers的authorization
+//   let token = req.headers.authorization;
+//   if (token) {
+//     let decoded = jwt.decode(token, app.get("jwtTokenSecret"));
+//     // 判断是否token已过期以及接收方是否为自己
+//     if (decoded.exp <= Date.now() || decoded.aud !== "hit") {
+//       res.sendStatus(401);
+//     } else {
+//       res.sendStatus(200);
+//     }
+//   } else {
+//     res.sendStatus(401);
+//   }
+// });
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/article", articleRouter);
+app.use('/upload', multerUpload);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

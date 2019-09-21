@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+ 
+<body>
+    <!-- 单文件上传 -->
+    <div class="single">
+        <div class="title">单个文件上传</div>
+        <input type="file" name="singleFile" id="singleFile">
+        <button class="submit">上传</button>
+        <img src="" alt="" id="img">
+    </div>
+    
+    <div class="multer">
+        <div class="title">多个文件上传</div>
+        <input type="file" name="multerFile" id="multerFile" multiple>
+        <button class="submit">上传</button>
+    </div>
+ 
+ 
+    <div class="upbefore">
+        <div class="title">可多次点击添加按钮，并预览</div>
+        <div id="imgs"></div>
+        <input type="file" id="upgteimg" value=""/>
+        <button class="submit">上传</button>
+    </div>
+ 
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        // 单文件上传
+        $('.single .submit').on('click', function () {
+ 
+            var fileList = $('#singleFile')[0].files;
+            console.log(fileList);
+            var formData = new FormData();
+            //此处文件名必须为 singleFile ，因为后台设置仅接口此文件名
+            formData.append('singleFile', fileList[0]);
+ 
+            $.ajax({
+                url: '/upload/single',
+                type: 'post',
+                processData: false,
+                contentType: false,//使用multer配合ajax时无需配置multipart/form-data，multer将自动配置，手动配置将报错，boundary not found
+                data: formData,
+                success: function (data) {
+                    console.log(data)
+                    $('#img').attr('src', data.path)
+                }
+            })
+        });
+ 
+        // 多文件上传
+        $('.multer .submit').on('click', function () {
+ 
+            var fileList = $('#multerFile')[0].files;
+            console.log(fileList);
+            var formData = new FormData();
+ 
+            for (let i = 0; i < fileList.length; i++) {
+                //此处文件名必须为 multerFile ，因为后台设置仅接口此文件名
+                formData.append('multerFile', fileList[i]);
+            }
+ 
+            $.ajax({
+                url: '/upload/multer',
+                type: 'post',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (data) {
+                    console.log(data)
+                }
+            })
+        });
+ 
+        // 可多次点击添加按钮，并预览
+        let arr = [];
+        let src = [];
+ 
+        $('#upgteimg').on('change', function () {
+            let $this = $(this)
+            let url = URL.createObjectURL($this[0].files[0]);
+            src.push(url);
+            arr.push($this[0].files[0]);
+            console.log(arr);
+            console.log(src);
+            showImg()
+        })
+        function showImg() {
+            let html = ''
+            for (let i = 0; i < src.length; i++) {
+                const element = src[i];
+                html += `<img src="${element}" alt="">`
+            }
+            $('#imgs').html(html);
+        }
+        $('.upbefore .submit').on('click', function () {
+            var formData = new FormData();
+            for (let i = 0; i < arr.length; i++) {
+                //此处文件名必须为 multerFile ，因为后台设置仅接口此文件名
+                formData.append('multerFile', arr[i]);
+            }
+            $.ajax({
+                url: '/upload/multer',
+                type: 'post',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (data) {
+                    console.log(data)
+                }
+            })
+        })
+    </script>
+</body>
+ 
+</html>

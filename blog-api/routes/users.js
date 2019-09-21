@@ -2,6 +2,8 @@ var express = require("express");
 var router = express.Router();
 var User = require("../models/user");
 var jwt = require("jwt-simple"); //引入jwt中间件
+var Article = require('../models/article')
+
 const secret = "hit";
 require("../util/util");
 
@@ -39,8 +41,8 @@ router.post("/login", function(req, res, next) {
         res.json({
           code: 0,
           data: {
-            name: user.username,
-            password: user.password,
+            name: userInfo[0].userName,
+            id:userInfo[0].userId,
             token: token,
             expires: expires
           },
@@ -86,12 +88,51 @@ router.post("/register", function(req, res, next) {
           msg: "注册成功",
           data: {
             userId: userId,
-            registerUser: registerUser.userName
+            registerUser: registerUser.userName,
+            userId: registerUser.userId
           }
         });
       });
     }
   });
+});
+
+//用户发表新文章
+router.get('/addArticle',function(req,res,next){
+  var r1 = Math.floor(Math.random()*10);
+  var r2 = Math.floor(Math.random()*10);
+  var sysDate = new Date().Format('yyyyMMddhhmmss');
+  var this_Date = new Date().Format('yyyy-MM-dd hh:mm:ss');
+  var articleId = r1+r2+sysDate;
+  var userId = req.param('userId');
+  if(!userId){
+    res.json({
+      status:'1',
+      msg:'请先登陆..'
+    })
+  }else{
+    var AddAricle = new Article({
+      "articleId":articleId,
+      "userId":req.param('userId'),
+      "title":req.param('title'),
+      "content":req.param('content'),
+      "type":req.param('type'),
+      "collectnum":'0',
+      "likenum":'0',
+      "viewsnum":'0',
+      "time": this_Date
+  })
+  AddAricle.save(function (){
+      res.json({
+          code:'0',
+          msg:'发帖成功',
+          data:AddAricle
+      })
+  })
+
+  }
+
+ 
 });
 
 // 用户校验 中间件
