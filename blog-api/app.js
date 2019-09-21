@@ -5,6 +5,8 @@ var bodyParser = require("body-parser");
 var jwt = require("jwt-simple"); //引入jwt中间件
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+var mongoose = require('mongoose');
+
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
@@ -35,7 +37,7 @@ app.use(bodyParser.json());
 app.all('*', function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');  //请求源
   res.header('Access-Control-Allow-Headers', '*');  //请求头
-  res.header('Access-Control-Max-Age',600);  //请求时间
+  res.header('Access-Control-Max-Age',600);  //请求时间，对option预请求过滤
   res.header('Access-Control-Allow-Methods', '*');  //请求方法  
   res.header('Content-Type', 'application/json;charset=utf-8');
    
@@ -71,6 +73,21 @@ app.use("/article", articleRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
+});
+
+//连接MongoDB数据库
+mongoose.connect('mongodb://127.0.0.1:27017/myBlog');
+
+mongoose.connection.on("connected", function () {
+  console.log("MongoDB connected success.")
+});
+
+mongoose.connection.on("error", function () {
+  console.log("MongoDB connected fail.")
+});
+
+mongoose.connection.on("disconnected", function () {
+  console.log("MongoDB connected disconnected.")
 });
 
 // error handler
