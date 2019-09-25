@@ -22,17 +22,43 @@ router.get('/',function(req,res,next){
       }
     })
   })
-  //展示搜索到的结果
-  router.get('/search',function(req,res,next){
+  //展示关键字搜索到列表
+  router.get('/type',function(req,res,next){
     var keyword = req.param('keyword')
-    Article.find({"content":{$regex:keyword}},function (err,doc){
+    Article.find({"type":{$regex:keyword}},function (err,doc){
       if(err){
         res.json({
           status:'1',
           msg:err.message
         });
       }else{
-        res.json(doc)
+        res.json({
+          code:'0',
+          msg:'',
+          data:doc
+        })
+      }
+    })
+  })
+  //展示所有的分类列表
+  router.get('/typeList',function(req,res,next){
+    Article.find({},function (err,doc){
+      let typeList = []
+      doc.map((item)=>{
+        typeList.push(item.type)
+      })
+      if(err){
+        res.json({
+          code:'1',
+          msg:err.message,
+          data:[]
+        });
+      }else{
+        res.json({
+          code:'0',
+          msg:'',
+          data:typeList
+        });
       }
     })
   })
