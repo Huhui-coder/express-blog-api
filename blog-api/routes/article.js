@@ -80,38 +80,57 @@ router.get('/',function(req,res,next){
       }
     })
   })
-  //展示对应文章的所有评论
-  router.get('/showcomment',function(req,res,next){
-    //var userId = req.cookies.userId;
-    var articleId = req.param('articleId');
-  
-    var userId = req.cookies.userId;
-    var userrecive = [];
-    //console.log(userId)
-   
-    User.find({},function(err,doc){
-        if(err){
-            res.json({
-                status:'1',
-                msg:err.message
-            })
-        }else{
-            if(doc){
-                doc.forEach(item=>{
-                    item.comment.forEach(item1 =>{
-                      if(item1.articleId == articleId){
-                        userrecive.push(item1.content)
-                      }
-                    })
-                  })
-                  res.json({
-                    status:'0',
-                    result:doc
-                  })
-            }
-              }
-            })
+  //对文章进行编辑
+  router.post('/edit',function(req,res,next){
+    console.log(req.body)
+    let Aticle = req.body,
+        articleId = Aticle.articleId,
+        title = Aticle.title,
+        content = Aticle.content,
+        type = Aticle.type,
+        time = Aticle.time;
+    Article.find({articleId:articleId},function (err,doc){
+      console.log(doc)
+      doc[0].title = title
+      doc[0].content = content
+      doc[0].type = type
+      doc[0].time = time
+      doc[0].save((err,doc)=>{
+      })
+      if(err){
+        res.json({
+          code:'1',
+          msg:err.message
+        });
+      }else{
+        res.json({
+          code:'0',
+          msg:'',
+          data:doc
+        });
+      }
+    })
   })
+  //用户删除一篇文章
+  router.get('/delect',function(req,res,next){
+    var articleId =req.param('articleId');
+    Article.remove({articleId:articleId},function (err,doc){
+      if(err){
+        res.json({
+          code:'1',
+          msg:'出现错误',
+          data:{}
+        })
+      }else{
+        res.json({
+          code:'0',
+          msg:'删除成功',
+          data:{}
+        })
+      }
+    })
+  })
+
 
 
 module.exports = router;
