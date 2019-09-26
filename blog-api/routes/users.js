@@ -154,8 +154,8 @@ let auth = function(req, res, next) {
     res.status(401).send("Not Allowed");
   }
 };
-
-router.get("/order", auth, function(req, res, next) {
+// 使用auth 验证
+router.get("/token", auth, function(req, res, next) {
   res.json({
     code: 0,
     data: {
