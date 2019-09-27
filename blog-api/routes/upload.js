@@ -1,31 +1,30 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
- 
+
 let upload = multer({
     storage: multer.diskStorage({
-        destination: function (req, file, cb) {
+        destination: function(req, file, cb) {
             cb(null, './uploads/');
         },
-        filename: function (req, file, cb) {
+        filename: function(req, file, cb) {
             console.log(file)
-            var changedName = (new Date().getTime())+'-'+file.originalname;
+            var changedName = (new Date().getTime()) + '-' + file.originalname;
             cb(null, changedName);
         }
     })
 });
- 
+
 //单个文件上传
-router.post('/single', upload.single('singleFile'), (req, res) => {
-    console.log(req.file);
+router.post('/single', upload.single('recfile'), (req, res) => { //注意这个recfile  在前端上传时，input的name同样要写这个，才行。
     res.json({
-        code: '0000',
+        code: '0',
         type: 'single',
         originalname: req.file.originalname,
         path: req.file.path
     })
 });
- 
+
 //多个文件上传
 router.post('/multer', upload.array('multerFile'), (req, res) => {
     console.log(req.files);
@@ -36,10 +35,10 @@ router.post('/multer', upload.array('multerFile'), (req, res) => {
         })
     });
     res.json({
-        code: '0000',
+        code: '0',
         type: 'multer',
         fileList: fileList
     });
 });
- 
+
 module.exports = router;
