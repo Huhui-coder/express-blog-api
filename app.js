@@ -11,7 +11,6 @@ const multer = require("multer");
 var app = express();
 
 var upload = multer({ dest: 'uploads/' }) //当前目录下建立文件夹uploads
-app.post('/uploads', upload.single('files'), function(req, res, next) { res.send("12") });
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
